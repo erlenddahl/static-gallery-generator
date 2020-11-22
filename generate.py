@@ -14,14 +14,21 @@ config["fileTypes"] = [x.lower() for x in config["fileTypes"]]
 
 class GalleryItem:
 
-	def __init__(self, path, albumId, id):
+	def __init__(self, path, albumId, id, albumData):
+		self.albumData = albumData
 		self.path = path
 		self.albumId = albumId
 		self.id = id
 		self.url = path.as_posix()
-		self.title = path.name
+
+		self.title = ""
+		if albumData["useFilenamesAsTitles"]:
+			self.title = path.name
 		self.description = ""
 		self.extraData = {}
+
+		if path.name in albumData["itemData"]:
+			self.setMetadata(albumData["itemData"][path.name])
 
 		(self.displayPath, self.width, self.height, self.thumbPath, self.tWidth, self.tHeight, self.dominantColor) = processItem(path)
 
@@ -48,6 +55,7 @@ class GalleryItem:
 			"imageDominantColor": self.dominantColor,
 			"downloadURL": self.url,
 			"title": self.title,
+			"description": self.description,
 			"ID": str(self.albumId) + "-" + str(self.id),
 			"albumID": str(self.albumId)
 		}
@@ -56,8 +64,8 @@ class GalleryItem:
 		
 		return {
 			"src": self.url,
-			"title": self.title,
-			"description": self.description,
+			"title": self.albumData["title"],
+			"description": self.albumData["description"],
 			"ID": str(self.albumId),
 			"kind": "album"
 		}
@@ -168,14 +176,18 @@ items = []
 
 for (albumId, album) in [(i, f) for (i, f) in enumerate(Path(config["galleryLocation"]).iterdir(), 1) if f.is_dir()]:
 
-	photos = [GalleryItem(f, albumId, i) for (i, f) in enumerate(album.iterdir(), 1) if f.is_file() and isValidFileType(f)]
-
 	albumDataFile = album / "album.json"
-	albumData = {}
+	albumData = {
+		"title": album.name,
+		"description": "",
+		"useFilenamesAsTitles": True,
+		"itemData": []
+	}
 	if albumDataFile.is_file():
 		albumData = json.loads(albumDataFile.read_text(encoding=config["metadataEncoding"] if "metadataEncoding" in config else None))
 
-	cover = copy.deepcopy(photos[0])
+	photos = [GalleryItem(f, albumId, i, albumData) for (i, f) in enumerate(album.iterdir(), 1) if f.is_file() and isValidFileType(f)]
+	cover = None
 
 	if "coverImage" in albumData:
 		for photo in photos:
@@ -184,9 +196,10 @@ for (albumId, album) in [(i, f) for (i, f) in enumerate(Path(config["galleryLoca
 				cover.setMetadata(albumData)
 				break
 
-	# TODO: Metadata encoding
-	# TODO: Read item metadata from [itemname].json
-	# TODO: Set exif data?
+	if cover is None:
+		cover = copy.deepcopy(photos[0])
+
+	# TODO: Read more photo details/set exif data?
 
 	items.append(cover.getAlbumJson())
 
@@ -196,7 +209,7 @@ for (albumId, album) in [(i, f) for (i, f) in enumerate(Path(config["galleryLoca
 
 with open(config["htmlTemplate"], 'r') as f:
 	html = f.read()
-	
+
 html = html.replace("{ITEMS_HERE}", json.dumps(items))
 html = html.replace("{THUMB_HEIGHT_HERE}", str(config["thumbHeight"]))
 
