@@ -176,7 +176,7 @@ for (albumId, album) in [(i, f) for (i, f) in enumerate(Path(config["albumlocati
 	albumDataFile = album / "album.json"
 	albumData = {}
 	if albumDataFile.is_file():
-		albumData = json.loads(albumDataFile.read_text())
+		albumData = json.loads(albumDataFile.read_text(encoding=config["metadataEncoding"] if "metadataEncoding" in config else None))
 
 	cover = copy.deepcopy(photos[0])
 

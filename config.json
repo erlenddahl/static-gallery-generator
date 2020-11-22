@@ -7,4 +7,5 @@
 	"htmltemplate": "template.html",
 	"htmlfile": "test.html",
 	"movieFrameExtraction": "C:\\DragNDropApps\\ffmpeg-20190207-2b8458f-win64-static\\bin\\ffmpeg -hide_banner -loglevel panic -y -ss 0 -i \"{MOVIE_PATH}\" -qscale:v 4 -frames:v 1 \"{OUTPUT_PATH}\""
+	"metadataEncoding": "utf8"
 }
