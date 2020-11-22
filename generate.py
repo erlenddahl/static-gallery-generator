@@ -5,6 +5,14 @@ import imghdr
 from PIL import Image, ImageDraw
 from pathlib import Path
 
+#TODO: Read more photo details/set exif data?
+#TODO: Multilevel support
+#TODO: Lazy loading support (photo provider?)
+#TODO: Timeline view
+#TODO: Map view
+#TODO: Code clean-up
+#TODO: Code commenting
+
 forceRegenerate = False
 
 with open('config.json', 'r') as f:
@@ -198,8 +206,6 @@ for (albumId, album) in [(i, f) for (i, f) in enumerate(Path(config["galleryLoca
 
 	if cover is None:
 		cover = copy.deepcopy(photos[0])
-
-	# TODO: Read more photo details/set exif data?
 
 	items.append(cover.getAlbumJson())
 
