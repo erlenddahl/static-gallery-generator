@@ -1,11 +1,11 @@
 {
-	"albumlocation": "contents",
-	"filetypes": [".jpg", ".jpeg", ".mp4", ".png", ".gif"],
-	"thumbheight": 300,
-	"displayheight": 1000,
-	"datafolder": "_data",
-	"htmltemplate": "template.html",
-	"htmlfile": "test.html",
-	"movieFrameExtraction": "C:\\DragNDropApps\\ffmpeg-20190207-2b8458f-win64-static\\bin\\ffmpeg -hide_banner -loglevel panic -y -ss 0 -i \"{MOVIE_PATH}\" -qscale:v 4 -frames:v 1 \"{OUTPUT_PATH}\""
+	"galleryLocation": "contents",
+	"fileTypes": [".jpg", ".jpeg", ".mp4", ".png", ".gif"],
+	"thumbHeight": 300,
+	"displayHeight": 1000,
+	"dataFolder": "_data",
+	"htmlTemplate": "template.html",
+	"outputFile": "test.html",
+	"movieFrameExtraction": "C:\\DragNDropApps\\ffmpeg-20190207-2b8458f-win64-static\\bin\\ffmpeg -hide_banner -loglevel panic -y -ss 0 -i \"{MOVIE_PATH}\" -qscale:v 4 -frames:v 1 \"{OUTPUT_PATH}\"",
 	"metadataEncoding": "utf8"
 }

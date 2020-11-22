@@ -10,10 +10,7 @@ forceRegenerate = False
 with open('config.json', 'r') as f:
     config = json.load(f)
 
-config["filetypes"] = [x.lower() for x in config["filetypes"]]
-
-with open(config["htmltemplate"], 'r') as f:
-	html = f.read()
+config["fileTypes"] = [x.lower() for x in config["fileTypes"]]
 
 class GalleryItem:
 
@@ -68,7 +65,7 @@ class GalleryItem:
 
 def isValidFileType(file):
 
-	for ft in config["filetypes"]:
+	for ft in config["fileTypes"]:
 		if file.name.lower().endswith(ft):
 			return True
 
@@ -79,7 +76,7 @@ def getThumbnailPath(photoPath, height = None, prefix = None):
 	if prefix is None:
 		prefix = str(height) + "px-"
 
-	thumbPath = photoPath.parent / config["datafolder"] / (prefix + photoPath.name)
+	thumbPath = photoPath.parent / config["dataFolder"] / (prefix + photoPath.name)
 	return thumbPath
 
 def generateImageThumbnail(photoPath, thumbPath, height):
@@ -109,7 +106,7 @@ def extractVideoFrame(videoPath):
 	draw = ImageDraw.Draw(im, 'RGBA')
 	width, height = im.size
 	
-	r = config["thumbheight"] * 0.15 * (height / config["thumbheight"])
+	r = config["thumbHeight"] * 0.15 * (height / config["thumbHeight"])
 	x = width / 2
 	y = height / 2
 	draw.ellipse([(x-r, y-r), (x+r, y+r)], fill=(0, 0, 0, 170))
@@ -126,13 +123,13 @@ def processImage(photoPath, thumbPath, isVideoFrame=False):
 	displayPath = photoPath
 	im = Image.open(photoPath)
 	width, height = im.size
-	if not isVideoFrame and height > config["displayheight"]:
-		displayPath = getThumbnailPath(photoPath, config["displayheight"])
+	if not isVideoFrame and height > config["displayHeight"]:
+		displayPath = getThumbnailPath(photoPath, config["displayHeight"])
 		if forceRegenerate or not displayPath.is_file():
-			generateImageThumbnail(photoPath, displayPath, config["displayheight"])
+			generateImageThumbnail(photoPath, displayPath, config["displayHeight"])
 
 	if forceRegenerate or not thumbPath.is_file():
-		generateImageThumbnail(photoPath, thumbPath, config["thumbheight"])
+		generateImageThumbnail(photoPath, thumbPath, config["thumbHeight"])
 
 	im = Image.open(thumbPath)
 	tWidth, tHeight = im.size
@@ -142,7 +139,7 @@ def processImage(photoPath, thumbPath, isVideoFrame=False):
 
 def processItem(itemPath):
 
-	thumbPath = getThumbnailPath(itemPath, config["thumbheight"])
+	thumbPath = getThumbnailPath(itemPath, config["thumbHeight"])
 
 	thumbPath.parent.mkdir(parents=True, exist_ok=True)
 
@@ -169,7 +166,7 @@ def processItem(itemPath):
 
 items = []
 
-for (albumId, album) in [(i, f) for (i, f) in enumerate(Path(config["albumlocation"]).iterdir(), 1) if f.is_dir()]:
+for (albumId, album) in [(i, f) for (i, f) in enumerate(Path(config["galleryLocation"]).iterdir(), 1) if f.is_dir()]:
 
 	photos = [GalleryItem(f, albumId, i) for (i, f) in enumerate(album.iterdir(), 1) if f.is_file() and isValidFileType(f)]
 
@@ -196,8 +193,12 @@ for (albumId, album) in [(i, f) for (i, f) in enumerate(Path(config["albumlocati
 	for photo in photos:
 		items.append(photo.getItemJson())
 
-html = html.replace("{ITEMS_HERE}", json.dumps(items))
-html = html.replace("{THUMB_HEIGHT_HERE}", str(config["thumbheight"]))
 
-with open(config["htmlfile"], 'w') as f:
+with open(config["htmlTemplate"], 'r') as f:
+	html = f.read()
+	
+html = html.replace("{ITEMS_HERE}", json.dumps(items))
+html = html.replace("{THUMB_HEIGHT_HERE}", str(config["thumbHeight"]))
+
+with open(config["outputFile"], 'w') as f:
 	f.write(html)
